@@ -115,19 +115,22 @@ public:
     void setContent(const std::vector<char> &content)
     {
         impl.content = content;
+        addHeader("Content-Length", boost::lexical_cast<std::string>(content.size()));
     }
 
     void setContent(const std::string &s)
     {
         impl.content.assign( s.begin(), s.end() );
+        addHeader("Content-Length", boost::lexical_cast<std::string>(s.size()));
     }
 
-    void setContent(const char *s, size_t size = static_cast<size_t>(-1))
+    void setContent(const char *s, size_t size = static_cast<size_t>(~0))
     {
-        if( size == static_cast<size_t>(-1) )
-            impl.content.assign( s, s + strlen(s) );
-        else
-            impl.content.assign( s, s + size );
+        if( size == static_cast<size_t>(~0) )
+            size = strlen(s);
+
+        impl.content.assign( s, s + size );
+        addHeader("Content-Length", boost::lexical_cast<std::string>(size));
     }
 
     void addContent(const std::vector<char> &content)
