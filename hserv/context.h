@@ -39,6 +39,7 @@ public:
     }
 
     void asyncDone() {
+        resp.addHeader("Content-Length", boost::lexical_cast<std::string>(resp.contentSize()));
         conn.writeResponse();
     }
 

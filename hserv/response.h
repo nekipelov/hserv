@@ -115,22 +115,19 @@ public:
     void setContent(const std::vector<char> &content)
     {
         impl.content = content;
-        addHeader("Content-Length", boost::lexical_cast<std::string>(content.size()));
     }
 
     void setContent(const std::string &s)
     {
         impl.content.assign( s.begin(), s.end() );
-        addHeader("Content-Length", boost::lexical_cast<std::string>(s.size()));
     }
 
-    void setContent(const char *s, size_t size = static_cast<size_t>(~0))
+    void setContent(const char *s, size_t size = static_cast<size_t>(~0u))
     {
-        if( size == static_cast<size_t>(~0) )
+        if( size == static_cast<size_t>(~0u) )
             size = strlen(s);
 
         impl.content.assign( s, s + size );
-        addHeader("Content-Length", boost::lexical_cast<std::string>(size));
     }
 
     void addContent(const std::vector<char> &content)
@@ -149,6 +146,11 @@ public:
             impl.content.insert( impl.content.end(), s, s + strlen(s) );
         else
             impl.content.insert( impl.content.end(), s, s + size );
+    }
+
+    size_t contentSize() const
+    {
+        return impl.content.size();
     }
 
     std::vector<boost::asio::const_buffer> statusBuffers(int versionMajor,
