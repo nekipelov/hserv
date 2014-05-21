@@ -1,5 +1,7 @@
 # hserv
 
+Build status: [![Build Status](https://travis-ci.org/nekipelov/hserv.svg?branch=master)](https://travis-ci.org/nekipelov/hserv)
+
 Is a library for asynchronous http applications based on Boost.Asio. Currently supported:
 
 * http (0.9, 1.0, 1.1)
