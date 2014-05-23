@@ -21,7 +21,7 @@ int main(int, char**)
     int port = 3000;
     std::string address = "0.0.0.0";
 
-#if BOOST_VERSION <= 104600
+#if BOOST_VERSION < 104700
     boost::asio::ssl::context context(ioService, boost::asio::ssl::context::sslv23);
 #else
     boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
