@@ -23,10 +23,11 @@ class Connection;
 class HttpsServer : public ServerInterface
 {
 public:
-    HttpsServer(const std::string &address, int port,
+    HttpsServer(boost::asio::io_service &ioService,
                 boost::asio::ssl::context &context,
+                const std::string &address, int port,
                 const boost::function<void(const boost::shared_ptr<Context> &)> &callback)
-        : impl(address, port, context, callback)
+        : impl(ioService, context, address, port, callback)
     {
     }
 

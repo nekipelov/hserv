@@ -5,6 +5,9 @@
 
 #include <iostream>
 
+#include <boost/asio/io_service.hpp>
+#include <boost/version.hpp>
+
 #include <hserv/httpsserver.h>
 
 using namespace hserv;
@@ -14,9 +17,15 @@ std::string getPassword();
 
 int main(int, char**)
 {
+    boost::asio::io_service ioService;
     int port = 3000;
     std::string address = "0.0.0.0";
+
+#if BOOST_VERSION <= 104600
+    boost::asio::ssl::context context(ioService, boost::asio::ssl::context::sslv23);
+#else
     boost::asio::ssl::context context(boost::asio::ssl::context::sslv23);
+#endif
 
     context.set_options(boost::asio::ssl::context::default_workarounds);
     context.set_password_callback(boost::bind(&getPassword));
@@ -27,7 +36,10 @@ int main(int, char**)
               << "http://" << address << ":" << port
               << std::endl;
 
-    HttpsServer( address, port, context, handler ).run();
+    HttpsServer server(ioService, context, address, port, handler);
+
+    server.run();
+    ioService.run();
 
     return 0;
 }
@@ -44,6 +56,5 @@ void handler(const boost::shared_ptr<Context> &context)
 
 std::string getPassword()
 {
-    std::cerr << "get pass" << std::endl;
     return "test";
 }

@@ -4,6 +4,7 @@
  */
 
 #include <boost/shared_ptr.hpp>
+#include <boost/asio/io_service.hpp>
 #include <hserv/impl/fastcgiconnection.h>
 
 namespace hserv {
@@ -18,9 +19,10 @@ class FastCgiNetworkServerImpl : public FastCgiServerImpl {
 public:
     typedef FastCGIConnection<boost::asio::ip::tcp::socket> ConnectionType;
 
-    FastCgiNetworkServerImpl(const std::string &address, int port,
+    FastCgiNetworkServerImpl(boost::asio::io_service &ioService,
+                             const std::string &address, int port,
                              const boost::function<void(const boost::shared_ptr<Context> &)> &callback)
-        : listenAddress(address), listenPort(port), ioService(), acceptor(ioService),
+        : listenAddress(address), listenPort(port), ioService(ioService), acceptor(ioService),
           callback(callback)
     {
     }
@@ -43,8 +45,6 @@ public:
         acceptor.async_accept(newConnection->getSocket(),
                               boost::bind(&FastCgiNetworkServerImpl::handleAccept, this,
                                           boost::asio::placeholders::error));
-
-        ioService.run();
     }
 
     void stop()
@@ -76,7 +76,7 @@ private:
     int listenPort;
 
     // The io_service used to perform asynchronous operations.
-    boost::asio::io_service ioService;
+    boost::asio::io_service &ioService;
 
     // Acceptor used to listen for incoming connections.
     boost::asio::ip::tcp::acceptor acceptor;

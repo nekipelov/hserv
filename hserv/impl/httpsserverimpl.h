@@ -10,6 +10,7 @@
 #include <boost/function.hpp>
 #include <boost/asio/ssl/context.hpp>
 #include <boost/asio/ssl/stream.hpp>
+#include <boost/asio/io_service.hpp>
 
 #include <hserv/impl/httpconnection.h>
 
@@ -19,10 +20,11 @@ namespace hserv {
 class HttpsServerImpl
 {
 public:
-    explicit HttpsServerImpl(const std::string &address, int port,
+    explicit HttpsServerImpl(boost::asio::io_service &ioService,
                              boost::asio::ssl::context &context,
+                             const std::string &address, int port,
                              const boost::function<void(const boost::shared_ptr<Context> &)> &callback)
-        : listenAddress(address), listenPort(port), ioService(), context(context),
+        : listenAddress(address), listenPort(port), ioService(ioService), context(context),
           acceptor(ioService), callback(callback)
     {}
 
@@ -69,8 +71,6 @@ public:
         acceptor.async_accept(newSocket->lowest_layer(),
                               boost::bind(&HttpsServerImpl::handleAccept, this,
                                           boost::asio::placeholders::error));
-
-        ioService.run();
     }
 
     void stop()
@@ -116,7 +116,7 @@ private:
     std::string listenAddress;
     int listenPort;
 
-    boost::asio::io_service ioService;
+    boost::asio::io_service &ioService;
     boost::asio::ssl::context &context;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::function<void(const boost::shared_ptr<Context> &)> callback;

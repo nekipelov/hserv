@@ -8,6 +8,7 @@
 
 #include <string>
 #include <boost/function.hpp>
+#include <boost/asio/io_service.hpp>
 
 
 #include <hserv/impl/httpconnection.h>
@@ -18,10 +19,11 @@ namespace hserv {
 class HttpServerImpl
 {
 public:
-    HttpServerImpl(const std::string &address, int port,
+    HttpServerImpl(boost::asio::io_service &ioService,
+                   const std::string &address, int port,
                    const boost::function<void(const boost::shared_ptr<Context> &)> &callback)
         : listenAddress(address), listenPort(port),
-          ioService(), acceptor(ioService), callback(callback)
+          ioService(ioService), acceptor(ioService), callback(callback)
     {}
 
     ~HttpServerImpl() {}
@@ -66,8 +68,6 @@ public:
         acceptor.async_accept(*newSocket.get(),
                               boost::bind(&HttpServerImpl::handleAccept, this,
                                           boost::asio::placeholders::error));
-
-        ioService.run();
     }
 
     void stop()
@@ -107,7 +107,7 @@ private:
     std::string listenAddress;
     int listenPort;
 
-    boost::asio::io_service ioService;
+    boost::asio::io_service &ioService;
     boost::asio::ip::tcp::acceptor acceptor;
     boost::function<void(const boost::shared_ptr<Context> &)> callback;
     boost::shared_ptr<ConnectionType> newConnection;

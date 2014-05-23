@@ -396,9 +396,11 @@ int main(int argc, char** argv)
                   << "http://" << listenAddress << ":" << listenPort
                   << std::endl;
 
-        HttpServer s(listenAddress, listenPort,
-                     boost::bind(ProxyPass::startHandler, _1, passPort, passAddress));
-        s.run();
+        boost::asio::io_service ioService;
+        HttpServer server(ioService, listenAddress, listenPort,
+                          boost::bind(ProxyPass::startHandler, _1, passPort, passAddress));
+        server.run();
+        ioService.run();
 
         ProxyPass::stopHandler();
     }

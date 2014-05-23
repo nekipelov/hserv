@@ -16,12 +16,16 @@ int main(int, char**)
 {
     int port = 3000;
     std::string address = "0.0.0.0";
+    boost::asio::io_service ioService;
 
     std::cout << "--> Test HTTP Server started on "
               << "http://" << address << ":" << port
               << std::endl;
 
-    HttpServer( address, port, handler ).run();
+    HttpServer server(ioService, address, port, handler);
+
+    server.run();
+    ioService.run();
 
     return 0;
 }
